@@ -3,7 +3,6 @@
 import asyncio
 
 import httpx
-
 from trussium.capabilities.chat import (
     ChatCompletionRequest,
     ChatMessage,
@@ -11,6 +10,7 @@ from trussium.capabilities.chat import (
     ChatStreamErrorEvent,
     ChatStreamEvent,
 )
+
 from trussium_provider_vllm import VLLMChatCapability
 
 
@@ -56,13 +56,7 @@ def test_complete_normalizes_vllm_response() -> None:
 
 def test_stream_normalizes_sse_lifecycle() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
-        body = "\n".join(
-            [
-                'data: {"id":"chat-1","model":"qwen","choices":[{"delta":{"content":"hi"},"finish_reason":null}]}',
-                'data: {"id":"chat-1","model":"qwen","choices":[{"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":2,"completion_tokens":1,"total_tokens":3}}',
-                "data: [DONE]",
-            ]
-        )
+        body = 'data: {"id":"chat-1","model":"qwen","choices":[{"delta":{"content":"hi"},"finish_reason":null}]}\ndata: {"id":"chat-1","model":"qwen","choices":[{"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":2,"completion_tokens":1,"total_tokens":3}}\ndata: [DONE]'
         return httpx.Response(200, text=body, headers={"content-type": "text/event-stream"})
 
     client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://vllm")
