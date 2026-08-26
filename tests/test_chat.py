@@ -47,9 +47,7 @@ def test_complete_normalizes_vllm_response() -> None:
 
     capability = VLLMChatCapability(
         "http://vllm",
-        client=httpx.AsyncClient(
-            transport=httpx.MockTransport(handler), base_url="http://vllm"
-        ),
+        client=httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://vllm"),
     )
     response = asyncio.run(capability.complete(request()))
     assert response.provider == "vllm"
@@ -65,13 +63,9 @@ def test_stream_normalizes_sse_lifecycle() -> None:
                 "data: [DONE]",
             ]
         )
-        return httpx.Response(
-            200, text=body, headers={"content-type": "text/event-stream"}
-        )
+        return httpx.Response(200, text=body, headers={"content-type": "text/event-stream"})
 
-    client = httpx.AsyncClient(
-        transport=httpx.MockTransport(handler), base_url="http://vllm"
-    )
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), base_url="http://vllm")
     capability = VLLMChatCapability("http://vllm", client=client)
 
     async def collect() -> list[ChatStreamEvent]:

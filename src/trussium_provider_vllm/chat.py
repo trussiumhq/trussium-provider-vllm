@@ -63,15 +63,11 @@ class VLLMChatCapability(ChatCapability):
         except httpx.HTTPStatusError as error:
             raise self._status_error(error.response.status_code) from error
         except httpx.RequestError as error:
-            raise VLLMProviderError(
-                "vLLM connection failed", code="vllm_connection"
-            ) from error
+            raise VLLMProviderError("vLLM connection failed", code="vllm_connection") from error
 
         return self._normalize_response(response.json())
 
-    async def stream(
-        self, request: ChatCompletionRequest
-    ) -> AsyncIterator[ChatStreamEvent]:
+    async def stream(self, request: ChatCompletionRequest) -> AsyncIterator[ChatStreamEvent]:
         """Execute and normalize vLLM SSE chat events."""
         response_id: str | None = None
         model = request.model
@@ -94,9 +90,7 @@ class VLLMChatCapability(ChatCapability):
                         return
                     try:
                         chunk = json.loads(data)
-                        response_id = str(
-                            chunk.get("id") or response_id or "vllm-response"
-                        )
+                        response_id = str(chunk.get("id") or response_id or "vllm-response")
                         model = str(chunk.get("model") or model)
                         if not response_id:
                             raise ValueError("missing response id")
@@ -111,9 +105,7 @@ class VLLMChatCapability(ChatCapability):
                                         provider=self.provider_name,
                                         model=model,
                                     )
-                                yield ChatStreamDeltaEvent(
-                                    id=response_id, content=delta
-                                )
+                                yield ChatStreamDeltaEvent(id=response_id, content=delta)
                             finish_reason = choice.get("finish_reason")
                             if finish_reason:
                                 yield ChatStreamEndEvent(
@@ -142,9 +134,7 @@ class VLLMChatCapability(ChatCapability):
     def _payload(request: ChatCompletionRequest, *, stream: bool) -> dict[str, Any]:
         return {
             "model": request.model,
-            "messages": [
-                message.model_dump(mode="json") for message in request.messages
-            ],
+            "messages": [message.model_dump(mode="json") for message in request.messages],
             "temperature": request.temperature,
             "max_tokens": request.max_output_tokens,
             "stream": stream,
