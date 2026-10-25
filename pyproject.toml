@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "trussium-provider-vllm"
-version = "0.1.0"
+version = "0.1.1"
 description = "Trussium provider plugin for self-hosted vLLM deployments."
 readme = "README.md"
 requires-python = ">=3.12"
